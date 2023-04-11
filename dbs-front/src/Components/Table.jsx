@@ -18,14 +18,16 @@ function Table(props) {
         </tr>
     })
     return (
-        <table>
-            <tr>
-                <th>From</th>
-                <th>To</th>
-                <th>Date</th>
-            </tr>
-            {cards}
-        </table>
+        <div className='tableContainer'>
+            {details.length == 0 ? "you have no bookings made." : <table>
+                <tr>
+                    <th>From</th>
+                    <th>To</th>
+                    <th>Date</th>
+                </tr>
+                {cards}
+            </table>}
+        </div>
     )
 }
 

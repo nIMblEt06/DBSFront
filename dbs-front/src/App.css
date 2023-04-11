@@ -68,6 +68,10 @@ body {
   justify-content: space-around;
 }
 
+.tableContainer{
+  width: 100%;
+}
+
 table{
   width: 100%;
 }
