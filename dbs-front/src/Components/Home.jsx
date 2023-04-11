@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
-import { Box, Flex, FormControl, GridItem, SimpleGrid, FormLabel, FormHelperText, Input, Heading, Link, Textarea, Text, VStack, Button } from '@chakra-ui/react'
+import { Box, Flex, FormControl, GridItem, SimpleGrid, FormLabel, FormHelperText, Input, Heading, Link, Textarea, Text, VStack, Button, } from '@chakra-ui/react'
 import "../App.css"
+import Table from './Table'
 // import axios from "axios"
 
 function Home() {
@@ -16,20 +17,36 @@ function Home() {
     const [showDriver, setShowDriver] = useState(false)
     const [initMenu, setInitMenu] = useState(true)
     const [customerFormType, setCustomerFormType] = useState(null)
+    const [details, setDetails] = useState(null)
+    const [canSubmit, setCanSubmit] = useState(false)
 
     async function submitForm() {
         const response = await fetch("http://127.0.0.1:9000/sendDetails", {
             method: "POST",
-            body: JSON.stringify({formInfo, customerFormType}),
+            body: JSON.stringify({ formInfo, customerFormType }),
             contentType: 'application/json'
         })
         // const response = await fetch("http://127.0.0.1:9000/helpMe", {
         //     method: "GET",
         // })
-        console.log(response);
+        setCanSubmit(false)
+        if (customerFormType == 'one') {
+            alert('Submitted!')
+        }
         const result = await response.json()
         console.log(result);
+        if (customerFormType == 'two') {
+            setDetails(result)
+        }
+
+        if (customerFormType == 'four') {
+            setDetails(result[0][0].toLowerCase())
+        }
+        // if (customerFormType == 'two'){
+        //     setDetails()
+        // }
     }
+    console.log(details);
 
     function openCustomerMenu() {
         setShowCustomer(prevCustomer => !prevCustomer)
@@ -39,9 +56,11 @@ function Home() {
     }
     function showInitMenu(e) {
         setCustomerFormType(e.target.id)
+        setDetails(null)
         if (e.target.id == "none") {
             setCustomerFormType(null)
         }
+        setCanSubmit(true)
         setInitMenu(prevInitMenu => !prevInitMenu)
     }
 
@@ -63,9 +82,8 @@ function Home() {
                 <VStack display={initMenu ? "flex" : "none"} className='customerOptions'>
                     <Button id="one" onClick={showInitMenu}>New Customer Registration</Button>
                     <Button id="two" onClick={showInitMenu}>Previous Bookings</Button>
-                    <Button id="three" onClick={showInitMenu}>New Booking</Button>
                     <Button id="four" onClick={showInitMenu}>Status of Booking</Button>
-                    <Button id="five" onClick={showInitMenu}>Bill Payment</Button>
+                    {/* <Button id="five" onClick={showInitMenu}>Bill Payment</Button> */}
                 </VStack>
                 {customerFormType !== null && <Box id="none" className="backButton" onClick={showInitMenu}>&lt;--</Box>}
                 {customerFormType == "one" && <VStack display={initMenu ? "none" : "flex"} className='customerOptionsCont'>
@@ -87,6 +105,7 @@ function Home() {
                         <FormLabel cursor="pointer" htmlFor="id" fontSize="20px" fontWeight="600">customer id</FormLabel>
                         <Input id="id" onChange={handleChange} p="1.2rem 0.8rem" w="80%" placeholder="enter your customer id" name="id" type="text" value={formInfo.id} />
                     </Box>
+                    {details != null && <Table details={details} />}
                 </VStack>}
                 {/* {customerFormType == "three" && <VStack display={initMenu ? "none" : "flex"} className='customerOptionsCont'>
                     <Box w="100%">
@@ -96,13 +115,10 @@ function Home() {
                 </VStack>} */}
                 {customerFormType == "four" && <VStack display={initMenu ? "none" : "flex"} className='customerOptionsCont'>
                     <Box w="100%">
-                        <FormLabel cursor="pointer" htmlFor="id" fontSize="20px" fontWeight="600">customer id</FormLabel>
-                        <Input id="id" onChange={handleChange} p="1.2rem 0.8rem" w="80%" placeholder="enter your customer id" name="id" type="text" value={formInfo.id} />
-                    </Box>
-                    <Box w="100%">
                         <FormLabel cursor="pointer" htmlFor="bookId" fontSize="20px" fontWeight="600">booking id</FormLabel>
                         <Input id="bookId" onChange={handleChange} p="1.2rem 0.8rem" w="80%" placeholder="enter your booking id" name="bookId" type="text" value={formInfo.bookId} />
                     </Box>
+                    {details != null && <div className='info'>status of your booking is: {details}</div>}
                 </VStack>}
                 {customerFormType == "five" && <VStack display={initMenu ? "none" : "flex"} className='customerOptionsCont'>
                     <Box w="100%">
@@ -114,7 +130,7 @@ function Home() {
                         <Input id="paymentType" onChange={handleChange} p="1.2rem 0.8rem" w="80%" placeholder="enter your booking id" name="paymentType" type="text" value={formInfo.paymentType} />
                     </Box>
                 </VStack>}
-                {customerFormType !== null && <Button className="submitButton" onClick={submitForm}>Submit</Button>}
+                {customerFormType !== null && canSubmit == true && <Button className="submitButton" onClick={submitForm}>Submit</Button>}
             </Box>
             <Flex bgPosition="center"
                 bgRepeat="no-repeat" bgSize="cover" align="center" justify="center" w="100%">
@@ -137,64 +153,3 @@ function Home() {
 }
 
 export default Home
-
-/* <FormControl mt="2rem">
-                                <SimpleGrid columns={2} columnGap={2} rowGap={4} w="full" >
-                                    <GridItem colSpan={1}>
-                                        <FormLabel
-                                            cursor="pointer"
-                                            htmlFor="name"
-                                            fontSize="20px"
-                                            fontWeight="600"
-                                        >first name</FormLabel>
-                                        <Input disabled={true} opacity="1 !important" id="name" onChange={handleChange} p="1.2rem 0.8rem" w="80%" placeholder="enter your first name here" name="name" type="text" value={formInfo.name} />
-                                    </GridItem>
-                                    <GridItem colSpan={1}>
-                                        <FormLabel
-                                            cursor="pointer"
-                                            htmlFor="lastName"
-                                            fontSize="20px"
-                                            fontWeight="600"
-                                        >last name</FormLabel>
-                                        <Input disabled={true} opacity="1 !important" id="lastName" onChange={handleChange} p="1.2rem 0.8rem" w="80%" placeholder="enter your last name here" name="lastName" type="text" value={formInfo.lastName} />
-                                    </GridItem>
-                                    <GridItem colSpan={2}>
-                                        <FormLabel
-                                            cursor="pointer"
-                                            htmlFor="email"
-                                            fontSize="20px"
-                                            fontWeight="600"
-                                        >personal email</FormLabel>
-                                        <Input pattern="f20[1-2]\d\d\d\d\d@pilani\.bits-pilani\.ac\.in" opacity="1 !important" w="90%" id="email" onChange={handleChange} p="1.2rem 0.8rem" placeholder="enter your personal mail here" name="pEmail" type="text" value={formInfo.pEmail} />
-                                    </GridItem>
-                                    <GridItem colSpan={2}>
-                                        <FormLabel
-                                            cursor="pointer"
-                                            htmlFor="id"
-                                            fontSize="20px"
-                                            fontWeight="600"
-                                        >bits id</FormLabel>
-                                        <Input w="90%" id="id" pattern="20[1-2]\d[A-B][1-8]([A-B][1-5])?PS\d\d\d\dP" onChange={handleChange} p="1.2rem 0.8rem" placeholder="enter your id number here" name="id" type="text" value={formInfo.id} />
-                                    </GridItem>
-                                    <GridItem colSpan={2}>
-                                        <FormLabel
-                                            cursor="pointer"
-                                            htmlFor="phone"
-                                            fontSize="20px"
-                                            fontWeight="600"
-                                        >phone</FormLabel>
-                                        <Input w="90%" id="phone" pattern="20[1-2]\d[A-B][1-8]([A-B][1-5])?PS\d\d\d\dP" onChange={handleChange} p="1.2rem 0.8rem" placeholder="enter your 10 digit phone number here" name="phone" type="number" value={formInfo.phone} />
-                                    </GridItem>
-
-                                    <GridItem colSpan={2}>
-                                        <FormLabel
-                                            cursor="pointer"
-                                            htmlFor="quote"
-                                            fontSize="20px"
-                                            fontWeight="600"
-                                        >yearbook quote</FormLabel>
-                                        <Textarea w="90%" maxLength="140" borderColor="#444" size="sm" resize="none" id="quote" onChange={handleChange} p="0.8rem" placeholder="enter your yearbook quote here" name="quote" value={formInfo.quote} />
-                                        <FormHelperText mt="0.4rem" mb="6rem">{formInfo.quote.length}/140 characters used</FormHelperText>
-                                    </GridItem>
-                                </SimpleGrid>
-                            </FormControl> */

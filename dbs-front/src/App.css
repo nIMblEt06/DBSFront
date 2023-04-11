@@ -61,3 +61,19 @@ body {
 .customerOptionsCont > div{
   justify-content: space-around;
 }
+
+table{
+  width: 100%;
+}
+tr{
+  text-align: center;
+}
+
+th{
+  font-size: 2rem;
+}
+
+.info{
+  margin-top: 2rem !important; 
+  align-self: baseline;   
+}
