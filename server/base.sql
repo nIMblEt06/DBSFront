@@ -10,7 +10,7 @@ CREATE TABLE CUSTOMER (
     -- first_name VARCHAR(50) NOT NULL,
     -- last_name VARCHAR(50) NOT NULL,
 
-    name VARCHAR(100) NOT NULL ,
+    name VARCHAR(100) NOT NULL , 
     email VARCHAR(100) NOT NULL,
 
     -- it has been assumed that different people can have the same emailid and phone number

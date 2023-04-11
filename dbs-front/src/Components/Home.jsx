@@ -18,11 +18,15 @@ function Home() {
     const [customerFormType, setCustomerFormType] = useState(null)
 
     async function submitForm() {
-        const response = await fetch("http://127.0.0.1:5000/sendDetails", {
+        const response = await fetch("http://127.0.0.1:9000/sendDetails", {
             method: "POST",
             body: JSON.stringify({formInfo, customerFormType}),
             contentType: 'application/json'
         })
+        // const response = await fetch("http://127.0.0.1:9000/helpMe", {
+        //     method: "GET",
+        // })
+        console.log(response);
         const result = await response.json()
         console.log(result);
     }
