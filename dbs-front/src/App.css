@@ -3,7 +3,11 @@ body {
 }
 
 .initButton:hover {
-  background-color: #3a3a3a;
+  background-color: #3a3a3a !important;
+}
+
+.initButton{
+  border: 1px solid rgb(228, 228, 228);
 }
 
 .customerMenu {
@@ -23,7 +27,9 @@ body {
 }
 
 .customerOptions>button {
+  margin-block: 0.6rem !important;
   background-color: black;
+  border: 1px solid white;
 }
 
 .customerOptions>button:hover {

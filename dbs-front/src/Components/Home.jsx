@@ -78,7 +78,7 @@ function Home() {
         <Flex minHeight="100vh" bg="black" position="relative">
             <Box className="customerMenu" display={showCustomer ? "flex" : "none"}>
                 <Box className="removeButton" onClick={openCustomerMenu}>X</Box>
-                {customerFormType == null && <Box fontSize="2.4rem" marginBottom="2rem">what would you like to do today?</Box>}
+                {customerFormType == null && <Box fontSize="2.4rem" marginBottom="2rem">What would you like to do today?</Box>}
                 <VStack display={initMenu ? "flex" : "none"} className='customerOptions'>
                     <Button id="one" onClick={showInitMenu}>New Customer Registration</Button>
                     <Button id="two" onClick={showInitMenu}>Previous Bookings</Button>
@@ -130,7 +130,7 @@ function Home() {
                         <Input id="paymentType" onChange={handleChange} p="1.2rem 0.8rem" w="80%" placeholder="enter your booking id" name="paymentType" type="text" value={formInfo.paymentType} />
                     </Box>
                 </VStack>}
-                {customerFormType !== null && canSubmit == true && <Button className="submitButton" onClick={submitForm}>Submit</Button>}
+                {customerFormType !== null && canSubmit == true && <Button className="submitButton" onClick={submitForm}>submit</Button>}
             </Box>
             <Flex bgPosition="center"
                 bgRepeat="no-repeat" bgSize="cover" align="center" justify="center" w="100%">
