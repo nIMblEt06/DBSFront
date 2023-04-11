@@ -5,8 +5,7 @@ import "../App.css"
 
 function Home() {
     const [formInfo, setFormInfo] = useState({
-        firstName: "",
-        lastName: "",
+        name: "",
         id: "",
         bookId: "",
         paymentType: "",
@@ -18,23 +17,14 @@ function Home() {
     const [initMenu, setInitMenu] = useState(true)
     const [customerFormType, setCustomerFormType] = useState(null)
 
-    function submitForm() {
-        // axios.post('/sendDetails', {
-        //     formInfo, customerFormType
-        // }).then(response => console.log(response.data))
-
-        // axios({
-        //     method: 'POST',
-        //     url: 'some/api',
-        //     // url: `127.0.0.1:5000/sendDetails`,
-        //     data: formInfo, customerFormType
-        // })
-        //     .then(function (response) {
-        //         console.log(response.data);
-        //     })
-        //     .catch(function (error) {
-        //         console.log(error);
-        //     });
+    async function submitForm() {
+        const response = await fetch("http://127.0.0.1:5000/sendDetails", {
+            method: "POST",
+            body: JSON.stringify({formInfo, customerFormType}),
+            contentType: 'application/json'
+        })
+        const result = await response.json()
+        console.log(result);
     }
 
     function openCustomerMenu() {
@@ -76,12 +66,8 @@ function Home() {
                 {customerFormType !== null && <Box id="none" className="backButton" onClick={showInitMenu}>&lt;--</Box>}
                 {customerFormType == "one" && <VStack display={initMenu ? "none" : "flex"} className='customerOptionsCont'>
                     <Box w="100%">
-                        <FormLabel cursor="pointer" htmlFor="firstName" fontSize="20px" fontWeight="600">first name</FormLabel>
-                        <Input id="firstName" onChange={handleChange} p="1.2rem 0.8rem" w="80%" placeholder="enter your first name" name="firstName" type="text" value={formInfo.firstName} />
-                    </Box>
-                    <Box w="100%">
-                        <FormLabel cursor="pointer" htmlFor="lastName" fontSize="20px" fontWeight="600">last name</FormLabel>
-                        <Input id="lastName" onChange={handleChange} p="1.2rem 0.8rem" w="80%" placeholder="enter your last name" name="lastName" type="text" value={formInfo.lastName} />
+                        <FormLabel cursor="pointer" htmlFor="name" fontSize="20px" fontWeight="600">name</FormLabel>
+                        <Input id="name" onChange={handleChange} p="1.2rem 0.8rem" w="80%" placeholder="enter your name" name="name" type="text" value={formInfo.name} />
                     </Box>
                     <Box w="100%">
                         <FormLabel cursor="pointer" htmlFor="email" fontSize="20px" fontWeight="600">email</FormLabel>
@@ -124,7 +110,7 @@ function Home() {
                         <Input id="paymentType" onChange={handleChange} p="1.2rem 0.8rem" w="80%" placeholder="enter your booking id" name="paymentType" type="text" value={formInfo.paymentType} />
                     </Box>
                 </VStack>}
-                <Button className="submitButton" onClick={submitForm}>Submit</Button>
+                {customerFormType !== null && <Button className="submitButton" onClick={submitForm}>Submit</Button>}
             </Box>
             <Flex bgPosition="center"
                 bgRepeat="no-repeat" bgSize="cover" align="center" justify="center" w="100%">
@@ -153,11 +139,11 @@ export default Home
                                     <GridItem colSpan={1}>
                                         <FormLabel
                                             cursor="pointer"
-                                            htmlFor="firstName"
+                                            htmlFor="name"
                                             fontSize="20px"
                                             fontWeight="600"
                                         >first name</FormLabel>
-                                        <Input disabled={true} opacity="1 !important" id="firstName" onChange={handleChange} p="1.2rem 0.8rem" w="80%" placeholder="enter your first name here" name="firstName" type="text" value={formInfo.firstName} />
+                                        <Input disabled={true} opacity="1 !important" id="name" onChange={handleChange} p="1.2rem 0.8rem" w="80%" placeholder="enter your first name here" name="name" type="text" value={formInfo.name} />
                                     </GridItem>
                                     <GridItem colSpan={1}>
                                         <FormLabel

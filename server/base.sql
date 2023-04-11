@@ -1,42 +1,103 @@
+
 --------- WRITING TABLES ----------
+
 
 CREATE TABLE CUSTOMER (
     customer_id INT AUTO_INCREMENT PRIMARY KEY ,
-    first_name VARCHAR(50) NOT NULL,
-    last_name VARCHAR(50) NOT NULL,
+
+    --- Earlier code consisted of these which were later changed due to 1NF Normalisation
+
+    -- first_name VARCHAR(50) NOT NULL,
+    -- last_name VARCHAR(50) NOT NULL,
+
+    name VARCHAR(100) NOT NULL ,
     email VARCHAR(100) NOT NULL,
+
+    -- it has been assumed that different people can have the same emailid and phone number
+
     phone_number VARCHAR(20) NOT NULL
+
+    
 );
+
+
+
+
 
 CREATE TABLE DRIVER (
     driver_id INT NOT NULL AUTO_INCREMENT PRIMARY KEY ,
-    driver_password VARCHAR(12) NOT NULL,
-    first_name VARCHAR(50) NOT NULL,
-    last_name VARCHAR(50) NOT NULL,
+
+    -- driver_password VARCHAR(12) NOT NULL,
+
+     --- Earlier code consisted of these which were later changed due to 1NF Normalisation
+
+    -- first_name VARCHAR(50) NOT NULL,
+    -- last_name VARCHAR(50) NOT NULL,
+
+    driver_name VARCHAR(50) NOT NULL,
+
     license_number VARCHAR(50) NOT NULL,
+
+    -- license number is also a candidate key
+
     phone_number VARCHAR(20) NOT NULL,
+    -- it has been assumed that different people can have the same emailid and phone number
+
+
     money_earned INT DEFAULT 0
+
     -- reason_unavailablity VARCHAR(50)
     -- CONSTRAINT DRIVER_PK PRIMARY KEY(driver_id)
 );
 
+
+
+
+
 CREATE TABLE CAR_TYPE (
+
     car_type_id INT PRIMARY KEY,
+
     type_name VARCHAR(50) NOT NULL,
+
+    -- type_name is also candidate key as type_name determines the type id
+    -- hatchback - 1
+    -- sedan - 2
+    -- suv - 3
+
     hourly_rate DECIMAL(5, 2) NOT NULL,
+
     mileage_rate DECIMAL(5, 2) NOT NULL
 );
 
+
+
+
+
 CREATE TABLE CAB (
+
     car_id INT AUTO_INCREMENT PRIMARY KEY,
+
     car_name VARCHAR(30) NOT NULL,
+
     car_type_id INT NOT NULL,
+
     plate_number VARCHAR(20) NOT NULL,
+    -- plate number - candidate key
+
     driver_id INT NOT NULL,
+    -- driver_id also candidate key as 1:1 Cardinality in cab and driver
+
     availablity BOOLEAN NOT NULL ,
+
     FOREIGN KEY (car_type_id) REFERENCES CAR_TYPE(car_type_id),
+
     FOREIGN KEY (driver_id) REFERENCES DRIVER(driver_id)
 );
+
+
+
+
 
 -- CREATE TABLE BOOKING_WAIT (
 --     booking_id INT AUTO_INCREMENT PRIMARY KEY,
@@ -54,15 +115,19 @@ CREATE TABLE CAB (
 --     FOREIGN KEY (car_id) REFERENCES CAR(car_id)
 -- );
 
+
+
+
+
 CREATE TABLE BOOKING (
     booking_id INT AUTO_INCREMENT PRIMARY KEY,
-    car_type_id INT ,
+    car_type_id INT NOT NULL ,
     customer_id INT NOT NULL,
     car_id INT,
     pickup_location VARCHAR(100) NOT NULL,
     dropoff_location VARCHAR(100) NOT NULL,
     start_time DATETIME NOT NULL,
-    end_time DATETIME,
+    -- end_time DATETIME,
     hour_count INT,
     status VARCHAR(70) NOT NULL DEFAULT 'Waiting',
     rating INT,
@@ -73,9 +138,16 @@ CREATE TABLE BOOKING (
     FOREIGN KEY (car_id) REFERENCES CAB(car_id)
 );
 
+
+
+
+
 CREATE TABLE PAYMENT (
+
     payment_id INT AUTO_INCREMENT PRIMARY KEY,
     booking_id INT NOT NULL,
+    -- booking id also candidate key
+
     amount DECIMAL(8, 2) DEFAULT 0.0 ,
     payment_method VARCHAR(20) NOT NULL,
     FOREIGN KEY (booking_id) REFERENCES BOOKING(booking_id)
@@ -155,11 +227,15 @@ VALUES (1 ,'delhi' , 'patna','2023-04-09 18:00:00' , 1) ,
        ---- END OF POPULATION ----
 
 
+
+
+
 -- Query4 / Nek 
 
 UPDATE CAB
 SET availablity=FALSE
 WHERE driver_id = 1;
+--wrong
 
 -- update cab, booking 
 -- inner join booking on booking.car_type_id=cab.car_type_id
@@ -198,6 +274,22 @@ WHERE booking_id = 01 ;
 
 -- Query9 / Trayambak
 -- in this query USE TRIGGER OTHER METHODS ARE NOT PERMISSIBLE
+-- drop trigger apply_surge_charge;
+drop trigger apply_surge_charge;
+DELIMITER %%
+CREATE TRIGGER apply_surge_charge
+before insert ON booking
+FOR EACH ROW
+BEGIN
+    set new.bill = new.bill + 50 ;
+END %%
+DELIMITER;
+
+INSERT INTO BOOKING (customer_id , pickup_location , dropoff_location, start_time , car_type_id)
+VALUES (1 ,'delhi' , 'patna','2023-04-09 18:00:00' , 1) ;
+select * from booking;
+
+
 
 
 -- SELECT count(booking_id) as total_bookings from BOOKING_WAIT 
@@ -206,7 +298,9 @@ WHERE booking_id = 01 ;
 -- WHERE booking_id = 02 ;
 
 
--- Q11/NEK
+--procedures for admin to check available cars, databases, money earned by driver/cab_type
+
+-- Q10/NEK
 DELIMITER &&
 drop procedure cars_available;
 CREATE PROCEDURE cars_available()
@@ -217,9 +311,9 @@ BEGIN
     WHERE CAR_TYPE.car_type_id = 1 AND (SELECT availablity FROM DRIVER WHERE DRIVER.driver_id = CAB.driver_id)=true;
 END &&
 DELIMITER ;
-CALL cars_available();
 
--- q12/nek
+
+-- q11/nek
 DELIMITER &&
 CREATE PROCEDURE money_earned_by_driver(id INT)
 BEGIN
@@ -229,7 +323,7 @@ BEGIN
 END &&
 DELIMITER ;
 
---q13/nek
+--q12/nek
 DELIMITER &&
 CREATE PROCEDURE money_earned_by_car_type(id INT)
 BEGIN
@@ -238,15 +332,63 @@ BEGIN
 END &&
 DELIMITER ;
 
---q14/nek
-select * from CUSTOMER;
+--q13/nek
+DELIMITER &&
+CREATE PROCEDURE view_customer_database()
+BEGIN
+    select * from CUSTOMER;
+END &&
+DELIMITER ;
 
---q15
-select * from DRIVER
-join CAB on DRIVER.driver_id = CAB.driver_id;
+--q14
+DELIMITER &&
+CREATE PROCEDURE view_driver_and_cabs_database()
+BEGIN  
+    select * from DRIVER
+    join CAB on DRIVER.driver_id = CAB.driver_id;
+END &&
+DELIMITER ;
+
+CALL cars_available();
+CALL money_earned_by_driver;
+CALL money_earned_by_car_type;
+CALL view_customer_database;
+CALL view_driver_and_cabs_database;
 
 
--- cab allotment
-update booking
-join CAB on booking.car_type_id=CAB.car_type_id
-SET BOOKING.car_id = (SELECT car_id FROM CAB WHERE CAB.availablity=true limit 1);
+-- -- cab allotment
+-- update booking
+-- join CAB on booking.car_type_id=CAB.car_type_id 
+-- SET BOOKING.car_id = CAB.car_id, cab.availablity = false where cab.availablity=true;
+
+
+
+-- Trayambak attempt
+
+-- SELECT * FROM booking WHERE status = 'Waiting' AS WAITLIST
+-- SELECT * FROM cab WHERE availablity = 1 AS AVAILABLECABS
+
+
+
+-- update booking
+-- left join WITHOUT DUPLICATE booking on booking.car_type_id=CAB.car_type_id 
+-- SET BOOKING.car_id = CAB.car_id, cab.availablity = false where cab.availablity=true;
+
+
+
+-- UPDATE BOOKING
+I
+
+-- final attempt
+
+-- SELECT * AS AV_CAB FROM CAB WHERE car_id = 2  LIMIT 1 ;
+
+-- SELECT * FROM BOOKING WHERE car_type_id = (AV_CAB.car_type_id) AND status = 'Waiting' AS WAIT_BOOK ;
+
+
+update booking join
+(SELECT * FROM CAB WHERE car_id = 7)sub1
+INNER JOIN (SELECT * FROM BOOKING WHERE booking.car_type_id = (SELECT cab.car_type_id FROM CAB WHERE car_id = 7) and BOOKING.status = "Waiting" LIMIT 1 )sub2
+ON sub1.car_type_id = sub2.car_type_id
+set booking.status="Ongoing", booking.car_id=7
+where booking.car_type_id = (SELECT cab.car_type_id FROM CAB WHERE car_id = 7) limit 1;

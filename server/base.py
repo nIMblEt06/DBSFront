@@ -12,10 +12,6 @@ mydb = mysql.connector.connect(
 
 mycursor = mydb.cursor()
 
-# @app.route("/usertype", methods=['POST'])
-# def user():
-#     user_type = request.form.get('user_type')
-#     if user_type == "customer":
 
 exit = 1
 while (exit):
@@ -41,6 +37,12 @@ while (exit):
             mycursor.execute(name_formula, (fname, lname, email, mobile))
             mydb.commit()
 
+            show = 'SELECT customer_id FROM CUSTOMER ORDER BY customer_id DESC LIMIT 1'
+            print('Your Customer ID ')
+
+            mycursor.execute(show)
+            print(mycursor.fetchall())
+
         elif use == 2:
 
             print("Please enter Customer ID")
@@ -50,16 +52,30 @@ while (exit):
             mycursor.execute(opt_formula)
             print(mycursor.fetchall())
 
-        # else:
-        #
+        elif use == 3:
+
+            print("Please enter customer ID")
+            cus_id = int(input())
+            print("Please enter Car type ID")
+            car_type_id = int(input())
+            print("Please enter pickup")
+            pickup = input()
+            print("Please enter dropoff")
+            dropoff = input()
+            print('Enter time in format YYYY-MM-DD HH:MM:SS')
+            start_time = input()
+
+            booking = 'INSERT INTO BOOKING(customer_id , car_type_id , pickup_location , dropoff_location ,start_time) VALUES(%s,%s,%s,%s,%s)'
+            mycursor.execute(booking, (cus_id, car_type_id,
+                             pickup, dropoff, start_time))
+            mydb.commit()
 
         elif use == 4:
 
             print("Please enter Customer ID")
             c_id = int(input())
-            print('Enter booking ID')
+            print('Enter booking ID ')
             book_id = int(input())
-
             status_view = 'SELECT status FROM BOOKING WHERE booking_id = ' + \
                 str(book_id)
             mycursor.execute(status_view)
@@ -69,6 +85,11 @@ while (exit):
 
             print('Enter booking ID')
             book_id = int(input())
+
+            print('Enter rating')
+            rate = int(input())
+            print('Enter feedback')
+            feedback = input()
 
             # setting payment id and booking id to same value since they exhibit foreign key relationship
 
@@ -91,13 +112,14 @@ while (exit):
             mycursor.execute(amount_update)
             mydb.commit()
 
-            update_bill = 'UPDATE BOOKING SET status = "Ride Completed And Amount Paid" where booking_id = ' + \
-                str(book_id)
+            update_bill = 'UPDATE BOOKING SET status = "Ride Completed And Amount Paid" , rating =' + \
+                str(rate) + ' , feedback = ' + feedback + \
+                ' WHERE booking_id = ' + str(book_id)
             mycursor.execute(update_bill)
             mydb.commit()
 
     else:
-        print('To finish Ride Press 1')
+        print('To finish Ride Press 1 \n To get available Press 2')
         use = int(input())
 
         if use == 1:
@@ -112,6 +134,7 @@ while (exit):
 
             endbook1 = 'UPDATE Cab SET availablity= 1 WHERE car_id = ' + \
                 str(cab_id) + ';'
+
             endbook2 = 'UPDATE Booking SET status = "Completed" , end_time = ' + \
                 time_end + ' , hour_count = ' + str(t) + \
                 ' WHERE booking_id = ' + str(book_id) + ';'
@@ -119,10 +142,49 @@ while (exit):
             endbook3 = ' UPDATE Booking inner join CAR_TYPE on booking.car_type_id = CAR_TYPE.car_type_id SET bill = hour_count * CAR_TYPE.hourly_rate WHERE booking_id = ' + \
                 str(cab_id) + ';'
 
+            newbook = 'update booking join (SELECT * FROM CAB WHERE car_id = ' + str(cab_id) + ')sub1 INNER JOIN (SELECT * FROM BOOKING WHERE booking.car_type_id = (SELECT cab.car_type_id FROM CAB WHERE car_id = ' + str(
+                cab_id) + ') and BOOKING.status = "Waiting" LIMIT 1 )sub2 ON sub1.car_type_id = sub2.car_type_id set booking.status="Ongoing", booking.car_id = ' + str(cab_id) + ' where booking.car_type_id = (SELECT cab.car_type_id FROM CAB WHERE car_id = ' + str(cab_id) + ') limit 1;'
+
+            avail_correction = 'UPDATE CAB SET availability = FALSE WHERE car_id = ' + \
+                str(cab_id) + ' AND  count( SELECT * FROM BOOKING WHERE car_id = ' + \
+                str(cab_id) + ' AND status = "Ongoing" ) = 1'
+
             mycursor.execute(endbook1)
             mycursor.execute(endbook2)
             mycursor.execute(endbook3)
+            mycursor.execute(newbook)
+            mycursor.execute(avail_correction)
+
             mydb.commit()
+
+        if use == 2:
+            print('Enter Cab ID')
+            cab_id = int(input())
+
+            avail = 'UPDATE cab SET availability = TRUE WHERE car_id = ' + \
+                str(cab_id)
+
+            newbook = 'update booking join (SELECT * FROM CAB WHERE car_id = ' + str(cab_id) + ')sub1 INNER JOIN (SELECT * FROM BOOKING WHERE booking.car_type_id = (SELECT cab.car_type_id FROM CAB WHERE car_id = ' + str(
+                cab_id) + ') and BOOKING.status = "Waiting" LIMIT 1 )sub2 ON sub1.car_type_id = sub2.car_type_id set booking.status="Ongoing", booking.car_id = ' + str(cab_id) + ' where booking.car_type_id = (SELECT cab.car_type_id FROM CAB WHERE car_id = ' + str(cab_id) + ') limit 1;'
+
+            avail_correction = 'UPDATE CAB SET availability = FALSE WHERE car_id = ' + \
+                str(cab_id) + ' AND  count( SELECT * FROM BOOKING WHERE car_id = ' + \
+                str(cab_id) + ' AND status = "Ongoing" ) = 1'
+
+            mycursor.execute(avail)
+            mycursor.execute(newbook)
+            mycursor.execute(avail_correction)
+
+            mydb.commit()
+
+
+# This function for booking confirmation
+
+        # wait_call = 'SELECT * FROM CAB where availablity = 1'
+        # mycursor.execute(wait_call)
+
+        # for x in mycursor :
+        #     join = 'update booking join' + str(x) + ' on booking.car_type_id=CAB.car_type_id SET BOOKING.car_id = CAB.car_id, cab.availablity = false where cab.availablity=true;'
 
         # else :
         #     print("Please enter Customer ID")
@@ -133,3 +195,5 @@ while (exit):
         #     dest = input()
         #     print("Enter start time")
         #     time = now.strftime('%Y-%m-%d %H:%M:%S')
+
+        # pnpm i, pnpm run dev
